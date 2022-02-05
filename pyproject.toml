@@ -1,0 +1,51 @@
+[project]
+name = "ELD"
+description = """\
+The implementation of CVPR 2020 (Oral) paper [A Physics-based Noise Formation Model for Extreme Low-light Raw Denoising](https://openaccess.thecvf.com/content_CVPR_2020/papers/Wei_A_Physics-Based_Noise_Formation_Model_for_Extreme_Low-Light_Raw_Denoising_CVPR_2020_paper.pdf) and its journal (TPAMI) version [Physics-based Noise Modeling for Extreme Low-light Photography](https://arxiv.org/abs/2108.02158).
+"""
+authors = [
+    {name = "Kaixuan Wei", email = "kaixuan_wei@outlook.com"},
+    {name = "Salas Lin", email = "gae.m.project@gmail.com"},
+]
+dependencies = [
+    "numpy>=1.19.5",
+    "opencv-python>=4.5.3.56",
+    "lmdb>=1.3.0",
+    "exifread>=2.3.2",
+    "rawpy>=0.17.0",
+    "colour-science>=0.3.16",
+    "matplotlib>=3.3.4",
+    "scipy>=1.5.4",
+    "scikit-learn>=0.24.2",
+    "pillow>=8.4.0",
+    "scikit-video>=1.1.11",
+    "scikit-image>=0.17.2",
+]
+requires-python = ">=3.6"
+license = {text = "MIT"}
+dynamic = ["version"]
+
+[project.urls]
+homepage = "https://github.com/levirve/ELD"
+
+[project.optional-dependencies]
+torch = [
+    "torch @ file:///D:/downloads/torch-1.10.2%2Bcu102-cp38-cp38-win_amd64.whl",
+    "-e file:///D:/repository/phaxe/downloads/torchinterp1d#egg=torchinterp1d",
+]
+[tool]
+[tool.pdm]
+version = {use_scm = true}
+[tool.pdm.overrides]
+
+[tool.pdm.dev-dependencies]
+[tool.usort]
+first_party_detection = false
+
+[tool.black]
+line-length = 120
+target-version = ["py37"]
+
+[build-system]
+requires = ["pdm-pep517"]
+build-backend = "pdm.pep517.api"
