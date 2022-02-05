@@ -1,7 +1,8 @@
 """indexes"""
-from skimage.metrics import structural_similarity, peak_signal_noise_ratio
 from functools import partial
+
 import numpy as np
+from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 from skvideo.measure import strred
 from skvideo.utils import rgb2gray
 
@@ -9,10 +10,7 @@ from skvideo.utils import rgb2gray
 def raw2gray(bayer_images):
     """RGBG -> linear RGB"""
     # T H W C
-    lin_rgb = np.stack([
-        bayer_images[..., 0], 
-        np.mean(bayer_images[..., [1,3]], axis=3), 
-        bayer_images[...,2]], axis=3)
+    lin_rgb = np.stack([bayer_images[..., 0], np.mean(bayer_images[..., [1, 3]], axis=3), bayer_images[..., 2]], axis=3)
 
     lin_gray = rgb2gray(lin_rgb)
 
@@ -31,7 +29,7 @@ class Framewise(object):
             y = Y[t, ...]
             index = self.index_fn(x, y)
             bwindex.append(index)
-        
+
         return bwindex
 
 
@@ -40,7 +38,7 @@ compare_ssim_video = Framewise(partial(structural_similarity, data_range=255, mu
 
 
 def compare_ncc(x, y):
-    return np.mean((x-np.mean(x)) * (y-np.mean(y))) / (np.std(x) * np.std(y)) 
+    return np.mean((x - np.mean(x)) * (y - np.mean(y))) / (np.std(x) * np.std(y))
 
 
 def ssq_error(correct, estimate):
@@ -49,11 +47,11 @@ def ssq_error(correct, estimate):
     where mask is True. If the inputs are color, each color channel can be
     rescaled independently."""
     assert correct.ndim == 2
-    if np.sum(estimate**2) > 1e-5:
-        alpha = np.sum(correct * estimate) / np.sum(estimate**2)
+    if np.sum(estimate ** 2) > 1e-5:
+        alpha = np.sum(correct * estimate) / np.sum(estimate ** 2)
     else:
-        alpha = 0.
-    return np.sum((correct - alpha*estimate) ** 2)
+        alpha = 0.0
+    return np.sum((correct - alpha * estimate) ** 2)
 
 
 def local_error(correct, estimate, window_size, window_shift):
@@ -61,14 +59,14 @@ def local_error(correct, estimate, window_size, window_shift):
     be rescaled within each local region to minimize the error. The windows are
     window_size x window_size, and they are spaced by window_shift."""
     M, N, C = correct.shape
-    ssq = total = 0.
+    ssq = total = 0.0
     for c in range(C):
         for i in range(0, M - window_size + 1, window_shift):
             for j in range(0, N - window_size + 1, window_shift):
-                correct_curr = correct[i:i+window_size, j:j+window_size, c]
-                estimate_curr = estimate[i:i+window_size, j:j+window_size, c]
+                correct_curr = correct[i : i + window_size, j : j + window_size, c]
+                estimate_curr = estimate[i : i + window_size, j : j + window_size, c]
                 ssq += ssq_error(correct_curr, estimate_curr)
-                total += np.sum(correct_curr**2)
+                total += np.sum(correct_curr ** 2)
     # assert np.isnan(ssq/total)
     return ssq / total
 
@@ -78,18 +76,18 @@ def quality_assess(X, Y, data_range=255):
     if X.ndim == 3:  # image
         psnr = peak_signal_noise_ratio(Y, X, data_range=data_range)
         ssim = structural_similarity(Y, X, data_range=data_range, multichannel=True)
-        return {'PSNR':psnr, 'SSIM': ssim}
+        return {"PSNR": psnr, "SSIM": ssim}
 
     elif X.ndim == 4:  # video clip
-        vpsnr = np.mean(compare_psnr_video(Y/data_range*255, X/data_range*255))
-        vssim = np.mean(compare_ssim_video(Y/data_range*255, X/data_range*255))
+        vpsnr = np.mean(compare_psnr_video(Y / data_range * 255, X / data_range * 255))
+        vssim = np.mean(compare_ssim_video(Y / data_range * 255, X / data_range * 255))
 
         if X.shape[0] != 1:
-            _, _strred, _strredsn = strred(raw2gray(Y)/data_range, raw2gray(X)/data_range)
+            _, _strred, _strredsn = strred(raw2gray(Y) / data_range, raw2gray(X) / data_range)
         else:
             _strred = 0
             _strredsn = 0
 
-        return {'PSNR': vpsnr, 'SSIM': vssim, 'STRRED': _strred, 'STRREDSN':_strredsn}
+        return {"PSNR": vpsnr, "SSIM": vssim, "STRRED": _strred, "STRREDSN": _strredsn}
     else:
         raise NotImplementedError

@@ -5,8 +5,8 @@ class MultipleLoss(nn.Module):
     def __init__(self, losses, weight=None):
         super(MultipleLoss, self).__init__()
         self.losses = nn.ModuleList(losses)
-        self.weight = weight or [1/len(self.losses)] * len(self.losses)
-    
+        self.weight = weight or [1 / len(self.losses)] * len(self.losses)
+
     def forward(self, predict, target):
         total_loss = 0
         for weight, loss in zip(self.weight, self.losses):
@@ -14,7 +14,7 @@ class MultipleLoss(nn.Module):
         return total_loss
 
 
-class ContentLoss():
+class ContentLoss:
     def initialize(self, loss):
         self.criterion = loss
 
@@ -25,14 +25,14 @@ class ContentLoss():
 def init_loss(opt):
     loss_dic = {}
 
-    print('[i] Pixel Loss: {}'.format(opt.loss))
+    print("[i] Pixel Loss: {}".format(opt.loss))
 
     pixel_loss = ContentLoss()
-    if opt.loss == 'l1':
+    if opt.loss == "l1":
         pixel_loss.initialize(nn.L1Loss())
-    elif opt.loss == 'l2':
+    elif opt.loss == "l2":
         pixel_loss.initialize(nn.MSELoss())
 
-    loss_dic['pixel'] = pixel_loss
+    loss_dic["pixel"] = pixel_loss
 
     return loss_dic

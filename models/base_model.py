@@ -1,9 +1,10 @@
 import os
+
 import torch
 import util.util as util
 
 
-class BaseModel():
+class BaseModel:
     def name(self):
         return self.__class__.__name__.lower()
 
@@ -44,8 +45,8 @@ class BaseModel():
     def update_learning_rate(self):
         for scheduler in self.schedulers:
             scheduler.step()
-        lr = self.optimizers[0].param_groups[0]['lr']
-        print('learning rate = %.7f' % lr)
+        lr = self.optimizers[0].param_groups[0]["lr"]
+        print("learning rate = %.7f" % lr)
 
     def print_optimizer_param(self):
         # for optimizer in self.optimizers:
@@ -58,11 +59,11 @@ class BaseModel():
 
         if label is None:
             # model_name = os.path.join(self.save_dir, self.name() + '_%03d_%08d.pt' % ((epoch), (iterations)))
-            model_name = os.path.join(self.save_dir, 'model' + '_%03d_%08d.pt' % ((epoch), (iterations)))
+            model_name = os.path.join(self.save_dir, "model" + "_%03d_%08d.pt" % ((epoch), (iterations)))
         else:
             # model_name = os.path.join(self.save_dir, self.name() + '_' + label + '.pt')
-            model_name = os.path.join(self.save_dir, 'model' + '_' + label + '.pt')
-            
+            model_name = os.path.join(self.save_dir, "model" + "_" + label + ".pt")
+
         torch.save(self.state_dict(), model_name)
 
     def _init_optimizer(self, optimizers):
@@ -70,5 +71,5 @@ class BaseModel():
         # reinitilize schedulers
         self.schedulers = []
         for optimizer in self.optimizers:
-            util.set_opt_param(optimizer, 'initial_lr', self.opt.lr)
-            util.set_opt_param(optimizer, 'weight_decay', self.opt.wd)
+            util.set_opt_param(optimizer, "initial_lr", self.opt.lr)
+            util.set_opt_param(optimizer, "weight_decay", self.opt.wd)
